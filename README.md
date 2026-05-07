@@ -102,6 +102,6 @@ Metabase Dashboards
 
 ## Dashboard Preview
 
-![Metabase Dashboard](docs/260507%20Metabase%20dashboard%20.png)
+![Metabase Dashboard](docs/260507%20Metabase%20dashboard.png)
 
 
