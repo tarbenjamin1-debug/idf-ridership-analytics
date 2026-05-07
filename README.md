@@ -99,4 +99,4 @@ Metabase Dashboards
 
 ## Dashboard Preview
 
-![Metabase Dashboard](docs/260505%20Metabase%20dashboard%20vf.png)
+![Metabase Dashboard](docs/260507%20Metabase%20dashboard%20vf.png)
