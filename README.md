@@ -98,7 +98,11 @@ Metabase Dashboards
 ```
 
 ## dbt model preview
+
 ![Metabase Dashboard](docs/Lineage_graph_dbt.png)
+
+## Data warehouse preview
+![Metabase Dashboard](docs/Data%20warehouse%20structure.png)
 
 ## Dashboard Preview
 
