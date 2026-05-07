@@ -93,18 +93,31 @@ dbt Staging Models
 dbt Mart Models
         ↓
 Metabase Dashboards
-
-#Metabase dashboard
 ```
 
-## dbt model preview
+## dbt Lineage Graph
+Below is the dbt lineage graph showing the staging and mart layers of the analytical model.
 
 ![Metabase Dashboard](docs/Lineage_graph_dbt.png)
 
 ## Data warehouse preview
+
+The project uses a layered warehouse architecture in Snowflake, separating raw ingestion tables from analytics-ready dimensional models.
+
+### RAW Layer
+Stores source datasets loaded directly from RATP open data files.
+
+### ANALYTICS Layer
+Contains transformed analytical models built with dbt:
+- `FACT_VALIDATIONS`
+- `DIM_DATE`
+- `DIM_LOCATIONS`
+
 ![Metabase Dashboard](docs/Data%20warehouse%20structure.png)
 
 ## Dashboard Preview
+
+The Metabase dashboard provides insights into ridership evolution, seasonality, and station-level performance.
 
 ![Metabase Dashboard](docs/260507%20Metabase%20dashboard.png)
 
