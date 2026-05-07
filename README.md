@@ -95,4 +95,8 @@ dbt Mart Models
 Metabase Dashboards
 
 #Metabase dashboard
+```
 
+## Dashboard Preview
+
+![Metabase Dashboard](docs/260505%20Metabase%20dashboard%20vf.png)
