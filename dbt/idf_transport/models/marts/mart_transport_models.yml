@@ -1,0 +1,131 @@
+version: 2
+
+models:
+  - name: fact_validations
+    description: Daily number of transport validations by date, network, stop, transporter, location, and subscription type.
+
+    columns:
+      - name: validation_id
+        description: Surrogate key for the fact row.
+        tests:
+          - not_null
+          - unique
+
+      - name: validation_date
+        description: Date of validation.
+        tests:
+          - not_null
+
+      - name: date_key
+        description: Surrogate date key in YYYYMMDD format used to join to dim_date.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_key
+
+      - name: location_id
+        description: Identifier of the stop where validations were recorded.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_locations')
+                field: location_id
+
+      - name: subscription_type
+        description: Ticket or subscription category used for the validation.
+        tests:
+          - not_null
+
+      - name: number_validations
+        description: Number of validations for the given date, stop, and subscription type.
+        tests:
+          - not_null
+
+      - name: reseau_id
+        description: Code of the network.
+        tests:
+          - not_null
+
+      - name: stop_id
+        description: Code of the stop.
+        tests:
+          - not_null
+
+      - name: transporter_id
+        description: Code of the transporter.
+        tests:
+          - not_null
+
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - validation_date
+              - reseau_id
+              - stop_id
+              - transporter_id
+              - subscription_type
+              - location_id
+
+    metrics:
+      - name: validations
+        label: Total validations
+        description: Total number of transport validations.
+        type: simple
+        agg: sum
+        expr: number_validations
+
+  - name: dim_locations
+    description: Dimension table containing all location_ids observed in transport validations.
+      It combines the latest available location reference dataset with fallback names
+      extracted from validation data when the reference dataset does not contain the location.
+      This design ensures full referential integrity with historical fact data.
+
+    columns:
+      - name: location_id
+        description:  Unique identifier of the location.
+        tests:
+          - not_null
+          - unique
+
+      - name: location_name
+        description: Preferred location name from the current reference file, otherwise fallback name from validations.
+        tests:
+          - not_null
+
+      - name: is_in_current_reference
+        description: True when the location exists in the latest location reference dataset.
+
+      - name: is_name_from_validation_fallback
+        description: True when the location name comes from validation data because the current reference file had no match.
+
+      - name: transport_mode
+        description: Mode of transportation.
+
+      - name: line_names
+        description: Name of the lines.
+
+      - name: X
+        description: X coordinate of the station.
+
+      - name: Y
+        description: Y coordinate of the station.
+
+  - name: dim_date
+    description: Calendar date dimension used for reporting and joins.
+
+    columns:
+      - name: date_key
+        description: Surrogate date key in YYYYMMDD format.
+        tests:
+          - not_null
+          - unique
+
+      - name: full_date
+        description: Calendar date.
+        tests:
+          - not_null
+          - unique

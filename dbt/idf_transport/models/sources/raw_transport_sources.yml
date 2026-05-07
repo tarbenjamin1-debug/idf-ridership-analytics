@@ -1,0 +1,102 @@
+version: 2
+
+
+sources:
+  - name: raw_transport
+    database: IDF_TRANSPORT
+    schema: RAW
+    tables:
+      - name: RAW_VALIDATION
+        description: "Daily validation counts by stop (ZDC reference) and ticket category."
+
+        config:
+          freshness:
+            warn_after: {count: 120, period: day}
+            error_after: {count: 500, period: day}
+
+        loaded_at_field: "to_timestamp(JOUR)"
+
+        tests:
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "NB_VALD >= 0"
+
+        columns:
+          - name: JOUR
+            description: "Full calendar date."
+            tests: [not_null]
+
+          - name: ID_ZDC
+            description: "ZDC reference identifier used as the conformed stop key (joins to locations reference)."
+            tests:
+              - not_null:
+                  config:
+                    severity: warn
+                    store_failures: true
+
+          - name: CATEGORIE_TITRE
+            description: "Ticket/subscription category label."
+            tests: [not_null]
+
+          - name: NB_VALD
+            description: "Number of validations."
+            tests:
+              - not_null
+
+          - name: CODE_STIF_ARRET
+            description: "STIF stop/station code (alternate identifier, not the primary join key)."
+
+          - name: LIBELLE_ARRET
+            description: "Stop/station label as provided in validations file."
+
+          - name: CODE_STIF_TRNS
+            description: "STIF transporter code (context)."
+
+          - name: CODE_STIF_RES
+            description: "STIF network code (context)."
+
+      - name: LOCATIONS
+        description: "Reference list of stations/stops with geospatial attributes and mode flags (Île-de-France rail network)."
+        columns:
+          - name: id_ref_zdc
+            description: "ZDC reference identifier (conformed stop key; joins to RAW_VALIDATION.ID_ZDC)."
+            tests:
+              - not_null
+              - unique:
+                  config: 
+                    severity: warn
+                    store_failures: true 
+
+          - name: nom_long
+            description: "Long stop/station name."
+
+          - name: geo_point_2d
+            description: "Latitude/longitude as a text pair (lat, lon) in WGS84."
+          - name: x
+            description: "Projected X coordinate (do not treat as longitude without conversion)."
+          - name: y
+            description: "Projected Y coordinate (do not treat as latitude without conversion)."
+
+          - name: mode
+            description: "Primary transport mode label (e.g., METRO, RER, TRAIN, TRAMWAY, VAL)."
+
+          # Useful reference context (optional downstream)
+          - name: codeunique
+            description: "Unique code from the source dataset."
+          - name: nom_zdc
+            description: "ZDC name."
+          - name: id_ref_zda
+            description: "ZDA reference identifier (higher-level zone)."
+          - name: nom_zda
+            description: "ZDA name."
+          - name: idrefliga
+            description: "Reference line id A (if present)."
+          - name: idrefligc
+            description: "Reference line id C (if present)."
+          - name: res_com
+            description: "Commercial network / line label."
+          - name: exploitant
+            description: "Operator (e.g., RATP, SNCF)."
+          - name: principal
+            description: "Indicator for principal stop (as provided)."
+

@@ -1,0 +1,101 @@
+version: 2
+
+models:
+  - name: stg_transport_validations
+    description: Cleaned staging model for transport validations
+
+    columns:
+      - name: validation_date
+        description: Date of ticket validation
+        tests:
+          - not_null
+
+      - name: location_id
+        description: Station identifier
+        tests:
+          - not_null
+
+      - name: number_validations
+        description: Number of validations recorded
+        tests: 
+          - not_null
+      
+      - name: reseau_id
+        description: "code of the network"
+        tests: 
+          - not_null
+
+      - name: stop_id
+        description: "code of the stop"
+        tests:
+          - not_null
+      
+      - name : transporter_id
+        description: "code of the transporter"
+        tests:
+          - not_null
+      
+      - name: 'subscription_type'
+        description: "type of subscription"
+        tests:
+          - not_null
+
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - validation_date
+              - reseau_id
+              - stop_id
+              - location_id
+              - transporter_id
+              - subscription_type
+
+  - name: stg_locations
+    description: Cleaned staging model for transport locations 
+
+    columns:
+      - name: location_name
+        description: Name of the stop 
+        tests:
+          - not_null
+
+      - name: transport_mode
+        description: "mode of transportation (metro, rer..)"
+
+      - name: location_id
+        description: Station identifier
+        tests:
+          - not_null
+          - unique 
+
+      - name: line_names 
+        description: "Name of the lines (ex: metro 13, RER 2)"
+
+      - name: X
+        description: x coordinate of the station
+
+      - name: Y
+        description: y coordinate of the station
+
+  - name: stg_location_name_from_validations
+    description: >
+      Helper staging model that extracts one fallback location name per location_id
+      from transport validation data. The most recent non-null libelle_arret is selected
+      for each location_id to provide a fallback when the official location reference
+      dataset does not contain the location.
+
+    columns:
+      - name: location_id
+        description: Identifier of the location extracted from validation data.
+        tests:
+          - not_null
+
+      - name: fallback_location_name
+        description: >
+          Most recent non-null location name (libelle_arret) observed in validation data
+          for a given location_id.
+
+
+
+
